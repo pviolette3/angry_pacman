@@ -24,7 +24,7 @@ void translate_vert(frame* bounds, int pixels)
   {
     return;
   }
-  frame old_replaced = {bounds->top, bounds->left, pixels, bounds->width};
+  frame old_replaced = {pixels > 0 ? bounds->top : bounds->top + bounds->height + pixels, bounds->left, pixels > 0 ? pixels : -pixels, bounds->width};
   bounds->top += pixels;
   //here, we don't move if there's no more to translate
   if(bounds->top <= 0) 

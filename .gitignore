@@ -1,4 +1,5 @@
 *.elf
+*.swp
 *.o
 *.vba
 gbadeps
