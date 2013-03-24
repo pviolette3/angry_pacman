@@ -5,6 +5,13 @@
 #define MODE ((1 << 10) | 3 )//Set 10th bit (video mode)) and mode 3
 #define BLACK (RGB(0, 0, 0))
 
+typedef struct {
+  int top;
+  int left;
+  int height;
+  int width;
+} frame;
+
 extern u16 *videoBuffer;
 /*
  * Sets the pixel at (r,c) to the specified color
@@ -12,10 +19,9 @@ extern u16 *videoBuffer;
 void set_pixel(int r, int c, u16 color);
 
 /*
- * Draws a FILLED rectangle starting at point (r, c) with
- * the given width and height.
+ * Fill the given frame with the given color
  *
  */
-void draw_rect(int r, int c, int width, int height, u16 color);
+void fill_frame(frame bounds, u16 color);
 
 void delay(int n);
