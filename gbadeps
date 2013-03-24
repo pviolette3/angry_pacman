@@ -1,0 +1,2 @@
+main.o: main.c mylib.h screen.h buttons.h
+screen.o: screen.c mylib.h screen.h buttons.h
