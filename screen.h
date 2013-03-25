@@ -24,7 +24,7 @@ extern u16 *videoBuffer;
 void set_pixel(int r, int c, u16 color);
 
 void translate_vert(frame* bounds, int pixels);
-
+void translate_horiz(frame* bounds, int pixels);
 /*
  * Fill the given frame with the given color
  *
