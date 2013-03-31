@@ -1,4 +1,5 @@
-//Buttons
+#ifndef __BUTTONS_H__
+#define __BUTTONS_H__
 #define A (1 << 0)
 #define B (1 << 1)
 #define SEL (1 << 2)
@@ -13,3 +14,5 @@
 #define BUTTONS_MASK (*(unsigned int *) 0x4000130)
 #define KEY_PRESSED(KEY) (~BUTTONS_MASK & (KEY))
 
+typedef unsigned int button_data;
+#endif

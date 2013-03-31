@@ -1,5 +1,5 @@
 #include "screen.h"
-
+#include "utils.h"
 u16 *video_buffer = (u16 *) 0x6000000;
 
 void set_pixel(int r, int c, u16 color) 
@@ -7,24 +7,29 @@ void set_pixel(int r, int c, u16 color)
  video_buffer[c * SCREEN_WIDTH + r] = color; 
 }
 
-void fill_frame(frame bounds, u16 color) 
+void fill_frame(Frame *bounds, u16 color) 
 {
-  for(int i = bounds.top; i <= bounds.top + bounds.height; i++) 
+  for(int i = bounds->top; i <= bounds->top + bounds->height; i++) 
   {
-    for(int j = bounds.left; j <= bounds.left + bounds.width; j++) 
+    for(int j = bounds->left; j <= bounds->left + bounds->width; j++) 
     {
       set_pixel(j, i, color);
     }
   }
 }
 
-void translate_vert(frame* bounds, int pixels)
+void erase_frame(Frame *bounds, u16 bg_color)
+{
+  fill_frame(bounds, bg_color);
+}
+
+void translate_vert(Frame* bounds, int pixels)
 {
   if(pixels == 0)
   {
     return;
   }
-  frame old_replaced = {pixels > 0 ? bounds->top : bounds->top + bounds->height + pixels, bounds->left, pixels > 0 ? pixels : -pixels, bounds->width};
+  Frame old_replaced = {pixels > 0 ? bounds->top : bounds->top + bounds->height + pixels, bounds->left, ABS(pixels), bounds->width};
   bounds->top += pixels;
   //here, we don't move if there's no more to translate
   if(bounds->top <= 0) 
@@ -37,17 +42,17 @@ void translate_vert(frame* bounds, int pixels)
     bounds->top =  SCREEN_HEIGHT - bounds-> height;
     return;
   }
-  fill_frame(old_replaced, BLACK);
-  fill_frame(*bounds, WHITE);
+  fill_frame(&old_replaced, BLACK);
+  fill_frame(bounds, WHITE);
 }
 
-void translate_horiz(frame* bounds, int pixels)
+void translate_horiz(Frame *bounds, int pixels)
 {
   if(pixels == 0)
   {
     return;
   }
-  frame old_replaced = {bounds->top, pixels > 0 ? bounds->left : bounds->left + pixels, bounds->height, pixels > 0 ? pixels : -pixels};
+  Frame old_replaced = {bounds->top, pixels > 0 ? bounds->left : bounds->left + pixels, bounds->height, ABS(pixels)};
   bounds->left += pixels;
   //here, we don't move if there's no more to translate
   if(bounds->left <= 0) 
@@ -60,8 +65,8 @@ void translate_horiz(frame* bounds, int pixels)
     bounds->left =  SCREEN_WIDTH - bounds->width;
     return;
   }
-  fill_frame(old_replaced, BLACK);
-  fill_frame(*bounds, WHITE);
+  fill_frame(&old_replaced, BLACK);
+  fill_frame(bounds, WHITE);
 }
 
 
