@@ -93,21 +93,22 @@ int off_screen(Frame *bounds)
     || (bounds->left + bounds->width > SCREEN_WIDTH);
 }
 
+
+static int in_bounds(Frame *bounds, int row, int column);
+
+int in_bounds(Frame *bounds, int row, int column)
+{
+  return ( bounds->left <= column ) && (column <= bounds->left + bounds->width)
+    && (bounds->top <= row) && (row <= bounds->top + bounds->height);
+}
+
 int intersect(Frame *a, Frame *b)
 {
-  int a_bottom = a->top + a->height;
-  int b_bottom = b->top + b->height;
-  if(( a_bottom < b_bottom ) && (a->top > b_bottom))
-  {
-      //we need to check x
-      return (a->left > b->left + b->width) || 
-        (a->left + a->width > b->left);
-  }
-  else if((b_bottom < a_bottom) && b->top > a_bottom) {
-       return (a->left > b->left + b->width) || 
-        (a->left + a->width > b->left);
-  }
-  return 0;
+  
+  return in_bounds(a, b->top, b->left) ||
+    in_bounds(a, b->top, b->left + b->width) ||
+    in_bounds(a, b->top + b->height, b->left) ||
+    in_bounds(a, b->top + b->height, b->left + b->width);
 }
 
 void wait_for_vblank()
