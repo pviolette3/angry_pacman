@@ -7,6 +7,8 @@ void draw_pebbles(PacmanPebble arr[], int length)
     PacmanPebble * cur = arr + i;
      if (!cur->is_hit) {
        fill_frame(cur->frame, WHITE);
+     }else {
+       erase_frame(cur->frame, BLACK);
      }
   }
 }

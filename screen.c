@@ -1,22 +1,39 @@
 #include "screen.h"
 #include "utils.h"
-u16 *video_buffer = (u16 *) 0x6000000;
+#include "dma.h"
+static u16 *video_buffer = (u16 *)0x6000000;
+#define PIXEL_ADDR_OF(row, col) (video_buffer + (row) * SCREEN_WIDTH + (col))
+#define PIXEL_OF(row, col) (*PIXEL_ADDR_OF((row), (col)))
+static void fill_row(int row, int start, int end, u16 color);
+//static void fill_row_dma(int row, int start, int end, u16 color);
 
 void set_pixel(int r, int c, u16 color) 
 {
- video_buffer[c * SCREEN_WIDTH + r] = color; 
+  PIXEL_OF(r, c) = color; 
 }
 
 void fill_frame(Frame *bounds, u16 color) 
 {
   for(int i = bounds->top; i <= bounds->top + bounds->height; i++) 
   {
-    for(int j = bounds->left; j <= bounds->left + bounds->width; j++) 
-    {
-      set_pixel(j, i, color);
-    }
+    fill_row(i, bounds->left, bounds->width, color);
   }
 }
+
+void fill_row(int row, int start_col, int width, u16 color)
+{
+    for(int j = start_col; j <= start_col + width; j++)
+    {
+      set_pixel(row, j, color);
+    }
+}
+/*
+void fill_row_dma(int row, int start_col, int width, volatile u16 color)
+{
+  DMA[3].src = &color;
+  DMA[3].dst = PIXEL_ADDR_OF(row, start_col);
+  DMA[3].cnt = DMA_ON | DMA_SOURCE_FIXED | width;
+}*/
 
 void erase_frame(Frame *bounds, u16 bg_color)
 {
@@ -29,7 +46,7 @@ void translate_vert(Frame* bounds, int pixels)
   {
     return;
   }
-  Frame old_replaced = {pixels > 0 ? bounds->top : bounds->top + bounds->height + pixels, bounds->left, ABS(pixels), bounds->width};
+  Frame old_replaced = {bounds->left, pixels > 0 ? bounds->top : bounds->top + bounds->height + pixels,  bounds->width, ABS(pixels)};
   bounds->top += pixels;
   //here, we don't move if there's no more to translate
   if(bounds->top <= 0) 
@@ -52,7 +69,7 @@ void translate_horiz(Frame *bounds, int pixels)
   {
     return;
   }
-  Frame old_replaced = {bounds->top, pixels > 0 ? bounds->left : bounds->left + pixels, bounds->height, ABS(pixels)};
+  Frame old_replaced = { pixels > 0 ? bounds->left : bounds->left + pixels, bounds->top, ABS(pixels), bounds->height};
   bounds->left += pixels;
   //here, we don't move if there's no more to translate
   if(bounds->left <= 0) 
@@ -69,6 +86,29 @@ void translate_horiz(Frame *bounds, int pixels)
   fill_frame(bounds, WHITE);
 }
 
+int off_screen(Frame *bounds)
+{
+  return (bounds->top < 0) || (bounds->left < 0)
+    || (bounds->top + bounds->height > SCREEN_HEIGHT)
+    || (bounds->left + bounds->width > SCREEN_WIDTH);
+}
+
+int intersect(Frame *a, Frame *b)
+{
+  int a_bottom = a->top + a->height;
+  int b_bottom = b->top + b->height;
+  if(( a_bottom < b_bottom ) && (a->top > b_bottom))
+  {
+      //we need to check x
+      return (a->left > b->left + b->width) || 
+        (a->left + a->width > b->left);
+  }
+  else if((b_bottom < a_bottom) && b->top > a_bottom) {
+       return (a->left > b->left + b->width) || 
+        (a->left + a->width > b->left);
+  }
+  return 0;
+}
 
 void wait_for_vblank()
 {
