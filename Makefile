@@ -6,16 +6,16 @@
 # The name of your desired GBA game
 # This should be a just a name i.e MyFirstGBAGame
 # No SPACES AFTER THE NAME.
-PROGNAME =PatrickGame
+PROGNAME =AngryPacman 
 
 # The object files you want to compile into your program
 # This should be a space (SPACE!) separated list of .o files
-OFILES =main.o screen.o pacman.o pacman_pebble.o
+OFILES =main.o screen.o
 
 # The header files you have created.
 # This is necessary to determine when to recompile for files.
 # This should be a space (SPACE!) separated list of .h files
-HFILES =buttons.h screen.h pacman_pebble.h pacman.h
+HFILES =static_screens.h screen.h 
 
 # The flags to run the vba program with
 # for a list of options run /usr/local/cs2110-tools/bin/vbam
@@ -83,4 +83,3 @@ $(GBADEPS): $(CFILES) $(HFILES)
 	@$(CC) $(CFLAGS) -MM $(CFILES) > $(GBADEPS)
 
 -include $(GBADEPS)
-

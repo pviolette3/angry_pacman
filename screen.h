@@ -42,4 +42,8 @@ int off_screen(Frame *bounds);
 
 int intersect(Frame *a, Frame *b);
 void wait_for_vblank();
+
+void set_background(u16 *source);
+void draw_picture(u16 *source, Frame *frame);
+
 #endif

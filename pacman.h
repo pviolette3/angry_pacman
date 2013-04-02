@@ -1,5 +1,6 @@
 #ifndef __PACMAN_H__
 #define __PACMAN_H__
+
 #include "screen.h"
 #include "pacman_pebble.h"
 

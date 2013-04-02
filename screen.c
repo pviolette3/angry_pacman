@@ -4,8 +4,8 @@
 static u16 *video_buffer = (u16 *)0x6000000;
 #define PIXEL_ADDR_OF(row, col) (video_buffer + (row) * SCREEN_WIDTH + (col))
 #define PIXEL_OF(row, col) (*PIXEL_ADDR_OF((row), (col)))
-static void fill_row(int row, int start, int end, u16 color);
-//static void fill_row_dma(int row, int start, int end, u16 color);
+//static void fill_row(int row, int start, int end, u16 color);
+static void fill_row_dma(int row, int start, int end, u16 color);
 
 void set_pixel(int r, int c, u16 color) 
 {
@@ -16,24 +16,24 @@ void fill_frame(Frame *bounds, u16 color)
 {
   for(int i = bounds->top; i <= bounds->top + bounds->height; i++) 
   {
-    fill_row(i, bounds->left, bounds->width, color);
+    fill_row_dma(i, bounds->left, bounds->width, color);
   }
 }
-
+/*
 void fill_row(int row, int start_col, int width, u16 color)
 {
     for(int j = start_col; j <= start_col + width; j++)
     {
       set_pixel(row, j, color);
     }
-}
-/*
+}*/
+
 void fill_row_dma(int row, int start_col, int width, volatile u16 color)
 {
   DMA[3].src = &color;
   DMA[3].dst = PIXEL_ADDR_OF(row, start_col);
   DMA[3].cnt = DMA_ON | DMA_SOURCE_FIXED | width;
-}*/
+}
 
 void erase_frame(Frame *bounds, u16 bg_color)
 {
@@ -109,6 +109,19 @@ int intersect(Frame *a, Frame *b)
     in_bounds(a, b->top, b->left + b->width) ||
     in_bounds(a, b->top + b->height, b->left) ||
     in_bounds(a, b->top + b->height, b->left + b->width);
+}
+void set_background(u16 *source)
+{
+  wait_for_vblank();
+  DMA[3].src = source;
+  DMA[3].dst = PIXEL_ADDR_OF(0,0);
+  DMA[3].cnt = DMA_ON | DMA_SOURCE_INCREMENT | ( SCREEN_WIDTH * SCREEN_HEIGHT );
+ 
+}
+
+void draw_picture(u16 *source, Frame *frame)
+{
+  
 }
 
 void wait_for_vblank()

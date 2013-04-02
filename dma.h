@@ -1,5 +1,6 @@
 #ifndef __DMA_H__
 #define __DMA_H__
+
 typedef unsigned int u32;
 typedef struct 
 {
