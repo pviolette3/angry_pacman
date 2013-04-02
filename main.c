@@ -1,8 +1,5 @@
 #include "game.h"
 #include "static_screens.h"
-#include "utils.h"
-#include "pacman.h"
-#include "pacman_pebble.h"
 
 PacmanPebble pebbles[] = {
     {
